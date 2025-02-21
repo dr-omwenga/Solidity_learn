@@ -8,3 +8,8 @@ const contractAddress = "0x608E87cFb4732E2bd1223a2818C638A7fa7D2722";
 let web3 = new Web3(window.ethereum);         
 let contract = new web3.eth.Contract(contractABI, contractAddress); 
 
+//note:
+// contractABI: The smart contract ABI defines the methods and events that the contract exposes. It’s imported from a JSON file.
+// contractAddress: The address of the deployed smart contract on the Ethereum network.
+// web3: This is the Web3.js library, which is used to interact with the Ethereum blockchain through MetaMask (window.ethereum).
+// contract: An instance of the contract that allows you to interact with the deployed contract methods.
