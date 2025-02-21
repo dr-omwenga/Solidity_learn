@@ -1,0 +1,10 @@
+ // Import ABI (Application Binary Interface) for the smart contract.
+  // Create a Web3 instance using the user's Ethereum provider (MetaMask).
+  // Address of the deployed smart contract.
+  // Initialize the contract with the ABI and address.
+
+import contractABI from "./abi.json";                   
+const contractAddress = "0x608E87cFb4732E2bd1223a2818C638A7fa7D2722";                  
+let web3 = new Web3(window.ethereum);         
+let contract = new web3.eth.Contract(contractABI, contractAddress); 
+
