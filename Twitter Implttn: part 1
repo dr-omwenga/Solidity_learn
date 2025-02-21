@@ -173,10 +173,9 @@ function shortAddress(address, startLength = 6, endLength = 4) {
 
 // setConnected function
 // This function updates the UI when the user successfully connects their wallet.
-It shows the shortened Ethereum address.
-It hides the "connectMessage" and shows the tweet form.
-It calls displayTweets to load and display the user's tweets.
-
+// It shows the shortened Ethereum address.
+// It hides the "connectMessage" and shows the tweet form.
+// It calls displayTweets to load and display the user's tweets.
 
 function setConnected(address) {
   document.getElementById("userAddress").innerText =
@@ -187,10 +186,27 @@ function setConnected(address) {
 }
 
 
+// Event Listeners for Wallet Connection and Tweet Submission
+// connectWalletBtn: When clicked, this button triggers the wallet connection process (connectWallet).
+// tweetForm: When the tweet form is submitted, the content of the tweet is sent to the smart contract via the createTweet function.
 
+document
+  .getElementById("connectWalletBtn")
+  .addEventListener("click", connectWallet);
 
-
-
-
-
+document.getElementById("tweetForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const content = document.getElementById("tweetContent").value;
+  const tweetSubmitButton = document.getElementById("tweetSubmitBtn");
+  tweetSubmitButton.innerHTML = '<div class="spinner"></div>';
+  tweetSubmitButton.disabled = true;
+  try {
+    await createTweet(content);
+  } catch (error) {
+    console.error("Error sending tweet:", error);
+  } finally {
+    tweetSubmitButton.innerHTML = "Tweet";
+    tweetSubmitButton.disabled = false;
+  }
+});
 
