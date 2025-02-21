@@ -45,6 +45,8 @@ async function connectWallet() {
 }
 
 
+
+
 // createTweet function
 // This function allows the user to create tweets by calling the createTweet method from the smart contract.
 // It retrieves the user's Ethereum account.
@@ -61,6 +63,128 @@ async function createTweet(content) {
   }
 }
 
+
+
+
+// displayTweets function 
+// This function displays all the tweets
+// It fetches all tweets from the smart contract using getAllTweets.
+// The tweets are sorted by their timestamp in descending order (most recent first).
+// For each tweet, the function dynamically creates HTML elements to display the tweet content, the author's address (shortened), and a like button.
+// It also adds an event listener to the like button for liking tweets.
+
+
+async function displayTweets(userAddress) {
+  const tweetsContainer = document.getElementById("tweetsContainer");
+  tweetsContainer.innerHTML = "";
+  const tempTweets = await contract.methods.getAllTweets(userAddress).call();
+  const tweets = [...tempTweets];
+  tweets.sort((a, b) => b.timestamp - a.timestamp);
+  for (let i = 0; i < tweets.length; i++) {
+    const tweetElement = document.createElement("div");
+    tweetElement.className = "tweet";
+
+    const userIcon = document.createElement("img");
+    userIcon.className = "user-icon";
+    userIcon.src = `https://avatars.dicebear.com/api/human/${tweets[i].author}.svg`;
+    userIcon.alt = "User Icon";
+
+    tweetElement.appendChild(userIcon);
+
+    const tweetInner = document.createElement("div");
+    tweetInner.className = "tweet-inner";
+    tweetInner.innerHTML += `
+        <div class="author">${shortAddress(tweets[i].author)}</div>
+        <div class="content">${tweets[i].content}</div>
+    `;
+
+    const likeButton = document.createElement("button");
+    likeButton.className = "like-button";
+    likeButton.innerHTML = `
+        <i class="far fa-heart"></i>
+        <span class="likes-count">${tweets[i].likes}</span>
+    `;
+    likeButton.setAttribute("data-id", tweets[i].id);
+    likeButton.setAttribute("data-author", tweets[i].author);
+
+    addLikeButtonListener(
+      likeButton,
+      userAddress,
+      tweets[i].id,
+      tweets[i].author
+    );
+    tweetInner.appendChild(likeButton);
+    tweetElement.appendChild(tweetInner);
+
+    tweetsContainer.appendChild(tweetElement);
+  }
+}
+
+
+
+// addLikeButtonListener function
+// This function attaches a click event listener to the like button of each tweet.
+// When the like button is clicked, it triggers the likeTweet function to interact with the contract and register the like.
+// After the transaction is processed, it refreshes the list of tweets.
+
+function addLikeButtonListener(likeButton, address, id, author) {
+  likeButton.addEventListener("click", async (e) => {
+    e.preventDefault();
+    e.currentTarget.innerHTML = '<div class="spinner"></div>';
+    e.currentTarget.disabled = true;
+    try {
+      await likeTweet(author, id);
+      displayTweets(address);
+    } catch (error) {
+      console.error("Error liking tweet:", error);
+    }
+  });
+}
+
+
+
+// likeTweetFunction
+// It allows the user to like tweets
+// It sends the likeTweet transaction to the smart contract, specifying the author and tweet ID.
+// The user's Ethereum account is used to sign and send the transaction.
+
+async function likeTweet(author, id) {
+  try {
+    const accounts = await web3.eth.getAccounts();
+    await contract.methods.likeTweet(author, id).send({ from: accounts[0] });
+  } catch (error) {
+    console.error("User rejected request:", error);
+  }
+}
+
+
+
+
+// shortAddress function
+// It shortens an Ethereum address to make it more readable by 
+// displaying the first 6 characters, followed by ..., and then the last 4 characters.
+
+function shortAddress(address, startLength = 6, endLength = 4) {
+  return `${address.slice(0, startLength)}...${address.slice(-endLength)}`;
+}
+
+
+
+
+// setConnected function
+// This function updates the UI when the user successfully connects their wallet.
+It shows the shortened Ethereum address.
+It hides the "connectMessage" and shows the tweet form.
+It calls displayTweets to load and display the user's tweets.
+
+
+function setConnected(address) {
+  document.getElementById("userAddress").innerText =
+    "Connected: " + shortAddress(address);
+  document.getElementById("connectMessage").style.display = "none";
+  document.getElementById("tweetForm").style.display = "block";
+  displayTweets(address);
+}
 
 
 
